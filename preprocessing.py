@@ -5,6 +5,7 @@ import PIL
 from PIL import Image 
 import matplotlib.pyplot as plt
 
+
 def generate_grid():
     grid_height, grid_width = 9,9
     logging.getLogger().info(f"Generating Grid with dimentions{grid_height}x{grid_width}")
