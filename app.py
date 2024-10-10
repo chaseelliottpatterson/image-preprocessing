@@ -34,14 +34,14 @@ if st.session_state['image'] is not None:
 
     st.image(st.session_state['image'])
     img_array = np.array(st.session_state['image'])
-    if barrel_pincushion:
-        st.divider()
-        distortion = st.slider("Pincushion to Barreled", -1.0, 1.0, 0.0)
-        st.write(distortion)
-    if skew:
-        st.divider()
-        h_skew = st.slider("Horizontal Skew", -1.0, 1.0, 0.0)
-        v_skew = st.slider("Vertical Skew", -1.0, 1.0, 0.0)
+    # if barrel_pincushion:
+    #     st.divider()
+    #     distortion = st.slider("Pincushion to Barreled", -1.0, 1.0, 0.0)
+    #     st.write(distortion)
+    # if skew:
+    #     st.divider()
+    #     h_skew = st.slider("Horizontal Skew", -1.0, 1.0, 0.0)
+    #     v_skew = st.slider("Vertical Skew", -1.0, 1.0, 0.0)
     
     with st.spinner():
         wi = WImage.from_array(st.session_state['image'])
@@ -53,13 +53,19 @@ if st.session_state['image'] is not None:
             #             0, 90, 5, 83,
             #             90, 90, 85, 88)
             # image.distort('perspective', arguments)
-            args = (
-                0.2,  # A
-                0.0,  # B
-                0.0,  # C
-                1.0,  # D
-            )
-            image.distort('barrel', args)
+            if barrel_pincushion:
+                st.divider()
+                a = st.slider("Distortion", 0.0, 1.0, 0.0)
+                b = 0
+                c = 0
+                z_zoom = 1
+                args = (
+                    a,  # A
+                    b,  # B
+                    c,  # C
+                    z_zoom,  # D
+                )
+                image.distort('barrel', args)
             img_buffer = np.asarray(bytearray(image.make_blob()), dtype='uint8')
         wimage = skimage.io.imread(BytesIO(img_buffer))
         st.image(wimage)
