@@ -31,5 +31,11 @@ if st.session_state['image'] is not None:
     st.image(st.session_state['image'])
     img_array = np.array(st.session_state['image'])
     if barrel_pincushion:
+        st.divider()
         distortion = st.slider("Pincushion to Barreled", -1.0, 1.0, 0.0)
         st.write(distortion)
+    if skew:
+        st.divider()
+        h_skew = st.slider("Horizontal Skew", -1.0, 1.0, 0.0)
+        v_skew = st.slider("Vertical Skew", -1.0, 1.0, 0.0)
+        
