@@ -3,6 +3,10 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 
+from io import BytesIO
+import skimage.io
+from wand.image import Image as WImage
+
 if 'image' not in st.session_state:
     st.session_state['image'] = None
 
@@ -38,4 +42,19 @@ if st.session_state['image'] is not None:
         st.divider()
         h_skew = st.slider("Horizontal Skew", -1.0, 1.0, 0.0)
         v_skew = st.slider("Vertical Skew", -1.0, 1.0, 0.0)
-        
+    
+    with st.spinner():
+
+        wi = WImage.from_array(st.session_state['image'])
+        with wi as image:
+            image.format = 'jpeg'
+            image.alpha_channel = False
+            arguments = (0, 0, 20, 60,
+                        90, 0, 70, 63,
+                        0, 90, 5, 83,
+                        90, 90, 85, 88)
+            image.distort('perspective', arguments)
+            img_buffer = np.asarray(bytearray(image.make_blob()), dtype='uint8')
+        wimage = skimage.io.imread(BytesIO(img_buffer))
+        st.image(wimage)
+
