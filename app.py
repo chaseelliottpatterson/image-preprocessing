@@ -44,16 +44,22 @@ if st.session_state['image'] is not None:
         v_skew = st.slider("Vertical Skew", -1.0, 1.0, 0.0)
     
     with st.spinner():
-
         wi = WImage.from_array(st.session_state['image'])
         with wi as image:
             image.format = 'jpeg'
             image.alpha_channel = False
-            arguments = (0, 0, 20, 60,
-                        90, 0, 70, 63,
-                        0, 90, 5, 83,
-                        90, 90, 85, 88)
-            image.distort('perspective', arguments)
+            # arguments = (0, 0, 20, 60,
+            #             90, 0, 70, 63,
+            #             0, 90, 5, 83,
+            #             90, 90, 85, 88)
+            # image.distort('perspective', arguments)
+            args = (
+                0.2,  # A
+                0.0,  # B
+                0.0,  # C
+                1.0,  # D
+            )
+            image.distort('barrel', args)
             img_buffer = np.asarray(bytearray(image.make_blob()), dtype='uint8')
         wimage = skimage.io.imread(BytesIO(img_buffer))
         st.image(wimage)
