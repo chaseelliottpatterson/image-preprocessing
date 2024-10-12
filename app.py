@@ -3,10 +3,12 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+from streamlit_image_coordinates import streamlit_image_coordinates
 
 from io import BytesIO
 import skimage.io
 from wand.image import Image as WImage
+
 
 
 if 'image' not in st.session_state:
@@ -126,7 +128,14 @@ def main():
         form_contents()
     if st.session_state['image'] is not None:
         user_options_dict = user_options()
-        st.image(st.session_state['image'],caption="original",)
+        value = streamlit_image_coordinates(
+            st.session_state['image'],
+            key="numpy",
+        )
+        st.write(value)
+        # value = streamlit_image_coordinates(img, key="pil")
+        # draw = ImageDraw.Draw(img)
+        # st.image(st.session_state['image'],caption="original",)
         if user_options_dict['barrel'] and not user_options_dict['compound_distortions']:
             with st.spinner():
                 run_barrel(explanations)
