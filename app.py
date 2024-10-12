@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image 
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 from io import BytesIO
 import skimage.io
@@ -37,7 +38,8 @@ def user_options():
     with st.expander("Distortions"):
             user_options_dict['barrel'] = st.checkbox("Barrel")
             user_options_dict['pincushion'] = st.checkbox("Pincushion")
-            user_options_dict['skew'] = st.checkbox("Skew")
+            user_options_dict['cylinder_to_plane'] = st.checkbox("Cylinder to Plane")
+            # user_options_dict['skew'] = st.checkbox("Skew")
             user_options_dict['compound_distortions'] = st.checkbox("Compound (distort in sequence for stacking distortions)")
     return user_options_dict
 def convert_wand_to_numpy(image):
@@ -58,7 +60,7 @@ def run_barrel(explanations):
             a,b,c,d = (st.slider("Barrel Distortion Amount", 0.0, 1.0, 0.0),0,0,1)
             image.distort('barrel', (a,b,c,d))
             wimage = convert_wand_to_numpy(image)
-            st.image(wimage)
+            st.image(wimage, caption="distorted")
 def run_pincushion(explanations):
     st.divider()
     wi = WImage.from_array(st.session_state['image'])
@@ -66,15 +68,44 @@ def run_pincushion(explanations):
         image.format = 'jpeg'
         image.alpha_channel = False
         with st.expander("Pincushion Distortion Explanation"):
-            pass
             st.write(explanations['pincushion1'])
             st.image(Image.open('ExampleImages/pincushion.png'))
             st.write(explanations['pincushion2'])
         a,b,c,d = (st.slider("Pincushion Distort Amount", 0.0, .1, 0.0),0,0,1)
         image.distort('barrel_inverse', (a,b,c,d))
         wimage = convert_wand_to_numpy(image)
-        st.image(wimage)
-def run_compound(barrel, pincushion):
+        st.image(wimage, caption="distorted")
+def run_cylinder_to_plane(explanations):
+    st.divider()
+    invert = st.checkbox("Invert?")
+    wi = WImage.from_array(st.session_state['image'])
+    with wi as image:
+        image.format = 'jpeg'
+        image.alpha_channel = False
+        expander_text = "Cylinder to Plane"
+        if invert:
+            expander_text = "Plane to Cylinder"
+        with st.expander(expander_text):
+            # st.write(explanations['pincushion1'])
+            # st.image(Image.open('ExampleImages/pincushion.png'))
+            # st.write(explanations['pincushion2'])
+            st.write("TODO")
+        lens = st.slider("lens", 1, 100, 1)
+        film = st.slider("film", 1, 100, 1)
+        fov_angle = (lens/film) * (180/math.pi)
+        if fov_angle > 160:
+            fov_angle = 160
+            st.write("FOV angle over 160, setting to 160")
+        st.write(f"FOV angle: {fov_angle:.1f}")
+        if invert:
+            image.distort('cylinder_2_plane', (fov_angle,))
+        else:
+            image.distort('plane_2_cylinder', (fov_angle,))
+        wimage = convert_wand_to_numpy(image)
+        st.image(wimage, caption="distorted")
+
+
+def run_compound(barrel, pincushion, cylinder_to_plane, plane_to_cylinder):
     st.divider()
     wi = WImage.from_array(st.session_state['image'])
     with wi as image:
@@ -102,12 +133,12 @@ def main():
         if user_options_dict['pincushion'] and not user_options_dict['compound_distortions']:
             with st.spinner():
                 run_pincushion(explanations)
+        if user_options_dict['cylinder_to_plane'] and not user_options_dict['compound_distortions']:
+            with st.spinner():
+                run_cylinder_to_plane(explanations)
         if user_options_dict['compound_distortions']:
-            run_compound(user_options_dict['barrel'],user_options_dict['pincushion'])
-
-                    
-
-                
+            run_compound(user_options_dict['barrel'],user_options_dict['pincushion'],user_options_dict['cylinder_to_plane'])
+               
 
 if __name__ == '__main__':
     main()
