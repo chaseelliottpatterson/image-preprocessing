@@ -55,6 +55,26 @@ def convert_wand_to_numpy(image):
     wimage = skimage.io.imread(BytesIO(img_buffer))
     return(wimage)
 
+def run_pixel_mesurements(image):
+    info = f'Image Info: Format-{image.format}, Size-{image.size}, Mode-{image.mode}'
+    reducer = None
+    if image.size[1]>740:
+        reducer = 740/image.size[0]
+        info = info + f" | Image over max size, resizing to {math.floor(image.size[0]*reducer)}x{math.floor(image.size[1]*reducer)}"
+        new_image = image.resize((math.floor(image.size[0]*reducer),(math.floor(image.size[1]*reducer))))
+    else:
+        new_image = image
+    st.write(info)
+    value = streamlit_image_coordinates(new_image,key="numpy")
+    x,y = value["x"],value["y"]
+    result = ""
+    if reducer is not None:
+        x = math.floor(x/reducer)
+        y = math.floor(y/reducer)
+        result = "  *This value has been retroactivly calculated from resizing process"
+    resut = f"(X,Y): ({x},{y})" + result
+    st.write(resut)
+    st.divider()
 def run_barrel(explanations):
         st.divider()
         wi = WImage.from_array(st.session_state['image'])
@@ -136,19 +156,14 @@ def main():
     image = st.session_state['image']
     if st.session_state['image'] is not None:
         user_options_dict = user_options()
-        st.image(st.session_state['image'],caption="original",)
+        purged_dict = user_options_dict.copy()
+        del purged_dict['pixel_measurements']
+        if True not in user_options_dict.values():
+            st.image(st.session_state['image'],caption="original")
         if user_options_dict['pixel_measurements']:
-            st.write(f'Image Info: Format-{image.format}, Size-{image.size}, Mode-{image.mode}')
-            if image.size[1]>740:
-                reducer = 740/image.size[0]
-                st.write(f"Image over width capacity for cell, resizing to {math.floor(image.size[0]*reducer)}x{math.floor(image.size[1]*reducer)}")
-                st.session_state['image'] = image.resize((math.floor(image.size[0]*reducer),(math.floor(image.size[1]*reducer))))
-            # value = streamlit_image_coordinates(
-            # st.session_state['image'],
-            # # use_column_width="always",
-            # key="numpy",
-            # )
-            # st.write(value)
+            run_pixel_mesurements(image)
+        if True in purged_dict.values():
+            st.image(st.session_state['image'],caption="original")
         if user_options_dict['barrel'] and not user_options_dict['compound_distortions']:
             with st.spinner():
                 run_barrel(explanations)
