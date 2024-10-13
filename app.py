@@ -3,6 +3,7 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+from skimage.transform import resize
 from streamlit_image_coordinates import streamlit_image_coordinates
 
 from io import BytesIO
@@ -37,7 +38,12 @@ def form_contents():
         st.session_state['image'] = image
 def user_options():
     user_options_dict = {}
-    with st.expander("Distortions"):
+    with st.expander("Options"):
+            st.divider()
+            st.write("Tools:")
+            user_options_dict['pixel_measurements'] = st.checkbox("Image Pixel Information")
+            st.divider()
+            st.write("Distortions:")
             user_options_dict['barrel'] = st.checkbox("Barrel")
             user_options_dict['pincushion'] = st.checkbox("Pincushion")
             user_options_dict['cylinder_to_plane'] = st.checkbox("Cylinder to Plane")
@@ -123,19 +129,26 @@ def run_compound(barrel, pincushion, cylinder_to_plane, plane_to_cylinder):
 
 def main():
     explanations = set_explanations()
+    st.set_page_config(layout="centered")
     st.title("Image Tool")
     with st.form("my_form"):
         form_contents()
+    image = st.session_state['image']
     if st.session_state['image'] is not None:
         user_options_dict = user_options()
-        value = streamlit_image_coordinates(
-            st.session_state['image'],
-            key="numpy",
-        )
-        st.write(value)
-        # value = streamlit_image_coordinates(img, key="pil")
-        # draw = ImageDraw.Draw(img)
-        # st.image(st.session_state['image'],caption="original",)
+        st.image(st.session_state['image'],caption="original",)
+        if user_options_dict['pixel_measurements']:
+            st.write(f'Image Info: Format-{image.format}, Size-{image.size}, Mode-{image.mode}')
+            if image.size[1]>740:
+                reducer = 740/image.size[0]
+                st.write(f"Image over width capacity for cell, resizing to {math.floor(image.size[0]*reducer)}x{math.floor(image.size[1]*reducer)}")
+                st.session_state['image'] = image.resize((math.floor(image.size[0]*reducer),(math.floor(image.size[1]*reducer))))
+            # value = streamlit_image_coordinates(
+            # st.session_state['image'],
+            # # use_column_width="always",
+            # key="numpy",
+            # )
+            # st.write(value)
         if user_options_dict['barrel'] and not user_options_dict['compound_distortions']:
             with st.spinner():
                 run_barrel(explanations)
