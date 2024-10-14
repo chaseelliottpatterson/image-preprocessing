@@ -47,7 +47,7 @@ def user_options():
             user_options_dict['barrel'] = st.checkbox("Barrel")
             user_options_dict['pincushion'] = st.checkbox("Pincushion")
             user_options_dict['cylinder_to_plane'] = st.checkbox("Cylinder to Plane")
-            # user_options_dict['skew'] = st.checkbox("Skew")
+            user_options_dict['skew'] = st.checkbox("Perspective Skew")
             user_options_dict['compound_distortions'] = st.checkbox("Compound (distort in sequence for stacking distortions)")
     return user_options_dict
 def convert_wand_to_numpy(image):
@@ -65,15 +65,17 @@ def run_pixel_mesurements(image):
     else:
         new_image = image
     st.write(info)
+
     value = streamlit_image_coordinates(new_image,key="numpy")
-    x,y = value["x"],value["y"]
-    result = ""
-    if reducer is not None:
-        x = math.floor(x/reducer)
-        y = math.floor(y/reducer)
-        result = "  *This value has been retroactivly calculated from resizing process"
-    resut = f"(X,Y): ({x},{y})" + result
-    st.write(resut)
+    if value is not None:
+        x,y = value["x"],value["y"]
+        result = ""
+        if reducer is not None:
+            x = math.floor(x/reducer)
+            y = math.floor(y/reducer)
+            result = "  *This value has been retroactivly calculated from resizing process"
+        resut = f"(X,Y): ({x},{y})" + result
+        st.write(resut)
     st.divider()
 def run_barrel(explanations):
         st.divider()
@@ -150,10 +152,16 @@ def run_compound(barrel, pincushion, cylinder_to_plane, plane_to_cylinder):
 def main():
     explanations = set_explanations()
     st.set_page_config(layout="centered")
-    st.title("Image Tool")
+    st.title("Imaging Tool")
     with st.form("my_form"):
         form_contents()
     image = st.session_state['image']
+    if image.size[1]>740:
+        reducer = 740/image.size[0]
+        new_image = image.resize((math.floor(image.size[0]*reducer),(math.floor(image.size[1]*reducer))))
+    else:
+        new_image = image
+    st.session_state['image'] = new_image
     if st.session_state['image'] is not None:
         user_options_dict = user_options()
         purged_dict = user_options_dict.copy()
@@ -173,6 +181,9 @@ def main():
         if user_options_dict['cylinder_to_plane'] and not user_options_dict['compound_distortions']:
             with st.spinner():
                 run_cylinder_to_plane(explanations)
+        if user_options_dict['skew'] and not user_options_dict['compound_distortions']:
+            with st.spinner():
+                pass
         if user_options_dict['compound_distortions']:
             run_compound(user_options_dict['barrel'],user_options_dict['pincushion'],user_options_dict['cylinder_to_plane'])
                
