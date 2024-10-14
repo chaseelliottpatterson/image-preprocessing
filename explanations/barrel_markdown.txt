@@ -29,6 +29,6 @@ In many practical cases, the first term $k_1$ dominates, and we can simplify the
 
 ---
 
-### **Key Takeawas**:
+### **Key Takeaways**:
 - **Barrel distortion**: Causes lines to curve outward due to light rays bending more at the edges, commonly seen in wide-angle lenses. The formula uses negative distortion coefficients.
 - While barrel and pincushion distortions are opposite in nature, they are not exact inverses. Correcting one may reduce but won't fully reverse the effects of the other due to their distinct, non-linear properties.

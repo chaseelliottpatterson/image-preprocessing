@@ -188,16 +188,28 @@ def run_skew():
             advanced = st.checkbox("Advanced Point Selection")
             destination_points = None
             if advanced:
-                st.write(st.session_state['reducer'])
+                st.write(f"reducer = {st.session_state['reducer']}")
                 if st.session_state['reducer'] is None:
                     txt = st.text_area(f"Please input coordinates in the format listed below: Image size for reference: {size}","(x1,y1)\n(x2,y2)\n(x3,y3)\n(x4,y4)")
-                    st.write(txt)
-                    destination_points = (
+                    splitter = txt.replace('\n', "|").replace(' ', "|").replace('(', "|").replace(')', "|").replace(',', "|").split('|')
+                    points = []
+                    for split in splitter:
+                        if split.isdigit():
+                            points.append(int(split))
+                    if len(points) == 8:
+                        destination_points = (
+                            (points[0], points[1]),
+                            (points[2], points[3]),
+                            (points[4], points[5]),
+                            (points[6], points[7])
+                        )
+                    else:
+                        destination_points = (
                         (0, 0),
                         (size[0], 0),
                         (0, size[1]),
                         (size[0], size[1])
-                    )
+                        )
                 else:
                     destination_points = (
                         (0, 0),
