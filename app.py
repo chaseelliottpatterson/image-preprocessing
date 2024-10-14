@@ -88,51 +88,66 @@ def run_pixel_mesurements(image):
         resut = f"(X,Y): ({x},{y})" + result
         st.write(resut)
     st.divider()
-def run_barrel(explanations):
+def run_barrel():
         st.divider()
         wi = WImage.from_array(st.session_state['image'])
         with wi as image:
             image.format = 'jpeg'
             image.alpha_channel = False
-            with st.expander("Barrel Distortion Explanation"):
-                st.write(explanations['barrel1'])
-                st.image(Image.open('ExampleImages/barrel.png'))
-                st.write(explanations['barrel2'])
-            a,b,c,d = (st.slider("Barrel Distortion Amount", 0.0, 1.0, 0.0),0,0,1)
+            with st.expander("Barrel Distortion Explanation:"):
+                f = open('explanations/barrel_markdown.txt', 'r')
+                unsplit_markdown = f.read()
+                split_markdown=unsplit_markdown.split('|FORMULAHERE|')
+                st.markdown(split_markdown[0])
+                st.latex(r'''r' = r \cdot \left( 1 + k_1 \cdot r^2 + k_2 \cdot r^4 + k_3 \cdot r^6 \right)''')
+                st.markdown(split_markdown[1])
+                st.latex(r'''r' = r \cdot \left( 1 + k_1 \cdot r^2 \right)''')
+                st.markdown(split_markdown[2])
+            a,b,c,d = (0,st.slider("Select Barrel Distortion Amount (k1):", 0.0, 5.0, 2.5),0,1)
             image.distort('barrel', (a,b,c,d))
             wimage = convert_wand_to_numpy(image)
             st.image(wimage, caption="distorted")
-def run_pincushion(explanations):
+def run_pincushion():
     st.divider()
     wi = WImage.from_array(st.session_state['image'])
     with wi as image:
         image.format = 'jpeg'
         image.alpha_channel = False
-        with st.expander("Pincushion Distortion Explanation"):
-            st.write(explanations['pincushion1'])
-            st.image(Image.open('ExampleImages/pincushion.png'))
-            st.write(explanations['pincushion2'])
-        a,b,c,d = (st.slider("Pincushion Distort Amount", 0.0, .1, 0.0),0,0,1)
-        image.distort('barrel_inverse', (a,b,c,d))
+        with st.expander("Pincushion Distortion Explanation:"):
+            f = open('explanations/pincushion_markdown.txt', 'r')
+            unsplit_markdown = f.read()
+            split_markdown=unsplit_markdown.split('|FORMULAHERE|')
+            st.markdown(split_markdown[0])
+            st.latex(r'''r' = r \cdot \left( 1 + k_1 \cdot r^2 + k_2 \cdot r^4 + k_3 \cdot r^6 \right)''')
+            st.markdown(split_markdown[1])
+            st.latex(r'''r' = r \cdot \left( 1 + k_1 \cdot r^2 \right)''')
+            st.markdown(split_markdown[2])
+        a,b,c,d = (0,st.slider("Select Pincushion Distortion Amount (k1):", -.16, 0.0,-0.08),0,1)
+        image.distort('barrel', (a,b,c,d))
         wimage = convert_wand_to_numpy(image)
         st.image(wimage, caption="distorted")
-def run_cylinder_to_plane(explanations):
+def run_cylinder_to_plane():
     st.divider()
-    invert = st.checkbox("Invert?")
     wi = WImage.from_array(st.session_state['image'])
     with wi as image:
         image.format = 'jpeg'
         image.alpha_channel = False
-        expander_text = "Cylinder to Plane"
+        with st.expander("Cylinder to Plane Distortion Explanation:"):
+            f = open('explanations/cylinder_to_plane_markdown.txt', 'r')
+            unsplit_markdown = f.read()
+            split_markdown=unsplit_markdown.split('|FORMULAHERE|')
+            st.markdown(split_markdown[0])
+            st.latex(r'''FOV = \frac{\text{Lens Focal Length}}{\text{Film Size}} \times \left(\frac{180}{\pi}\right)''')
+            st.markdown(split_markdown[1])
+            st.latex(r'''FOV = \frac{\text{Lens Focal Length}}{\text{Film Size}} \times \left(\frac{180}{\pi}\right)''')
+            st.markdown(split_markdown[2])
+        invert = st.checkbox("Invert?")
+        setting_mode = "Cylinder to Plane"
         if invert:
-            expander_text = "Plane to Cylinder"
-        with st.expander(expander_text):
-            # st.write(explanations['pincushion1'])
-            # st.image(Image.open('ExampleImages/pincushion.png'))
-            # st.write(explanations['pincushion2'])
-            st.write("TODO")
-        lens = st.slider("lens", 1, 100, 1)
-        film = st.slider("film", 1, 100, 1)
+            setting_mode = "Plane to Cylinder"
+        st.write(setting_mode)
+        lens = st.slider("lens", 1, 100, 50)
+        film = st.slider("film", 1, 100, 50)
         fov_angle = (lens/film) * (180/math.pi)
         if fov_angle > 160:
             fov_angle = 160
@@ -144,19 +159,26 @@ def run_cylinder_to_plane(explanations):
             image.distort('plane_2_cylinder', (fov_angle,))
         wimage = convert_wand_to_numpy(image)
         st.image(wimage, caption="distorted")
-def run_skew(explanations):
+def run_skew():
         st.divider()
         size = st.session_state['image'].size
         wi = WImage.from_array(st.session_state['image'])
         with wi as image:
             image.format = 'jpeg'
             image.alpha_channel = False
-            with st.expander("Perspective"):
-                st.write("TODO")
-                
-                # st.write(explanations['barrel1'])
-                # st.image(Image.open('ExampleImages/barrel.png'))
-                # st.write(explanations['barrel2'])
+            with st.expander("Perspective Distortion (Skew) Explanation:"):
+                f = open('explanations/perspective_skew_markdown.txt', 'r')
+                unsplit_markdown = f.read()
+                split_markdown=unsplit_markdown.split('|FORMULAHERE|')
+                st.markdown(split_markdown[0])
+                st.latex(r'''\begin{pmatrix}x' \\y' \\w'\end{pmatrix}=\begin{pmatrix}a & b & c \\d & e & f \\g & h & 1\end{pmatrix}\begin{pmatrix}x \\y \\1\end{pmatrix}''')
+                st.markdown(split_markdown[1])
+                st.latex(r'''x' = \frac{a \cdot x + b \cdot y + c}{g \cdot x + h \cdot y + 1}  \ y' = \frac{d \cdot x + e \cdot y + f}{g \cdot x + h \cdot y + 1}''')
+                st.markdown(split_markdown[2])
+                st.latex(r'''(src1x, src1y) \rightarrow (dst1x, dst1y)\\(src2x, src2y) \rightarrow (dst2x, dst2y)\\(src3x, src3y) \rightarrow (dst3x, dst3y)\\(src4x, src4y) \rightarrow (dst4x, dst4y)''')
+                st.markdown(split_markdown[3])
+                st.latex(r'''\begin{pmatrix}0, 0\end{pmatrix}\rightarrow\begin{pmatrix}14, 4.6\end{pmatrix}\\\begin{pmatrix}140, 0\end{pmatrix}\rightarrow\begin{pmatrix}126.9, 9.2\end{pmatrix}\\\begin{pmatrix}0, 92\end{pmatrix}\rightarrow\begin{pmatrix}0, 92\end{pmatrix}\\\begin{pmatrix}140, 92\end{pmatrix}\rightarrow\begin{pmatrix}140, 92\end{pmatrix}''')
+                st.markdown(split_markdown[4])
             source_points = (
                 (0, 0),
                 (size[0], 0),
@@ -227,7 +249,7 @@ def run_compound(barrel, pincushion, cylinder_to_plane, plane_to_cylinder):
 def main():
     explanations = set_explanations()
     st.set_page_config(layout="centered")
-    st.title("Imaging Tool")
+    st.title("Interactive Image Tool")
     with st.form("my_form"):
         form_contents()
     if st.session_state['image'] is not None:
@@ -250,19 +272,19 @@ def main():
             st.image(st.session_state['image'],caption="original")
         if user_options_dict['barrel'] and not user_options_dict['compound_distortions']:
             with st.spinner():
-                run_barrel(explanations)
+                run_barrel()
         if user_options_dict['pincushion'] and not user_options_dict['compound_distortions']:
             with st.spinner():
-                run_pincushion(explanations)
+                run_pincushion()
         if user_options_dict['cylinder_to_plane'] and not user_options_dict['compound_distortions']:
             with st.spinner():
-                run_cylinder_to_plane(explanations)
+                run_cylinder_to_plane()
         if user_options_dict['skew'] and not user_options_dict['compound_distortions']:
             with st.spinner():
-                run_skew(explanations)
+                run_skew()
         if user_options_dict['compound_distortions']:
             run_compound(user_options_dict['barrel'],user_options_dict['pincushion'],user_options_dict['cylinder_to_plane'])
-               
+                
 
 if __name__ == '__main__':
     main()

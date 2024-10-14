@@ -1,0 +1,36 @@
+### **Pincushion Distortion**
+
+**Pincushion distortion** is the opposite of barrel distortion. In pincushion distortion, straight lines near the edges of the image curve inward, creating a "pinched" appearance. This typically occurs in telephoto lenses, which have long focal lengths and tend to pull light rays from the periphery inward.
+
+#### **Causes of Pincushion Distortion:**
+- **Telephoto lenses**: These lenses compress the scene and magnify objects, but they also introduce distortion that pulls the edges of the image inward toward the center.
+- **Magnification**: As the focal length increases, the light rays entering from the edges are magnified more than those closer to the center, causing inward warping.
+- **Over-corrected lenses**: Some lenses, particularly those designed to correct for barrel distortion, may introduce pincushion distortion as a side effect.
+
+---
+
+### **Formula for Pincushion Distortion**:
+
+The mathematical model for pincushion distortion is very similar to that of barrel distortion, but in this case, the image is warped inward.
+|FORMULAHERE|
+
+Where:
+- $r$ is the original radial distance.
+- $r'$ is the new, distorted radial distance.
+- $k_1, k_2, k_3$ are the distortion coefficients, similar to barrel distortion.
+
+- For **pincushion distortion**, $k_1$ is typically **negative**, which pulls points inward toward the center.
+
+#### **Simplified Model**:
+For most practical cases, only the first term is used, and the equation becomes:
+|FORMULAHERE|
+
+
+- **$k_1$** is positive for pincushion distortion, meaning that points farther from the center are pulled inward.
+
+---
+
+### **Key Takeaways**:
+- **Pincushion distortion**: Causes lines to curve inward, usually occurring in telephoto lenses. The formula uses negitive distortion coefficients.
+Absolutely! Here's a condensed version of your explanation that can be added to the key takeaways:
+- While barrel and pincushion distortions are opposite in nature, they are not exact inverses. Correcting one may reduce but won't fully reverse the effects of the other due to their distinct, non-linear properties.

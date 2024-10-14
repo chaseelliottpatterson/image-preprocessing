@@ -1,0 +1,42 @@
+### **Perspective Distortion (Skew)**
+
+**Perspective distortion** occurs when an image is transformed to simulate a viewpoint change. This causes straight lines in the image to appear to converge, giving the illusion of depth or angle. It is commonly used in image processing to correct or introduce 3D-like effects. Perspective transformations map points in an image from one set of coordinates (source points) to another (destination points).
+
+#### **Causes of Perspective Distortion:**
+- **Camera angle**: When the camera is tilted or positioned at extreme angles, parts of the image closer to the camera appear larger, while objects farther away seem smaller.
+- **Focal length**: Wide-angle lenses can exaggerate perspective distortion, while telephoto lenses tend to flatten the perspective.
+- **Image transformation**: Perspective transformations are often used deliberately in image processing to simulate depth or correct skewed angles in photos.
+
+---
+
+### **Formula for Perspective Distortion**:
+
+The perspective distortion formula involves mapping 4 pairs of points: 4 source points (from the original image) and 4 destination points (to the desired transformed image). The transformation is applied using the following perspective matrix formula:
+|FORMULAHERE|
+
+Where:
+- $(x, y)$ are the source (original) coordinates.
+- $(x', y')$ are the destination (transformed) coordinates.
+- $w'$ is the scaling factor.
+- $a, b, c, d, e, f, g, h$ are transformation matrix coefficients, which are computed based on the source and destination point mappings.
+
+To compute the transformed coordinates, divide by the scaling factor $w'$:
+|FORMULAHERE|
+
+This equation transforms the source points $(x, y)$ into their corresponding destination points $(x', y')$.
+
+#### **Example Source and Destination Points**:
+For perspective distortion, you map 4 source points to 4 destination points. These can be represented as pairs of coordinates:
+|FORMULAHERE|
+
+#### **Example Setup**:
+In a simple case, let's assume the following source and destination points:
+|FORMULAHERE|
+
+This setup defines the mapping of four corners of a rectangle in the source image to their respective positions in the destination image.
+
+---
+
+### **Key Takeaways**:
+- **Perspective distortion**: It is used to map source points to new destination points, simulating a change in viewpoint. This can introduce depth or correct skewed images.
+- **Transformation matrix**: The transformation is defined by a 3x3 matrix that maps points using a perspective formula. The transformation is non-linear and affects all parts of the image based on the defined source and destination points.

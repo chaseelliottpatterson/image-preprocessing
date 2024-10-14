@@ -4,7 +4,7 @@ Here’s a draft for your README file:
 
 # Interactive Image Tool with Streamlit
 
-This project is an interactive image processing tool built using Python and [Streamlit](https://streamlit.io/), enabling users to detect pixel coordinates and apply various image distortions, including barrel distortion, pincushion distortion, cylinder-to-plane transformations, and more.
+This project is a lightweight interactive image processing tool built using Python and [Streamlit](https://streamlit.io/), enabling users to detect pixel coordinates and apply various image distortions, including barrel distortion, pincushion distortion, cylinder-to-plane transformations, and more.
 
 ## Features
 
@@ -77,7 +77,3 @@ Feel free to open issues or submit pull requests for bug fixes, enhancements, or
 ## License
 
 This project is licensed under the MIT License.
-
----
-
-Let me know if you'd like to make any changes!

@@ -1,0 +1,38 @@
+### **Cylinder to Plane Distortion**
+
+**Cylinder to Plane distortion** is a type of radial projection used to correct common **field of vision (FOV)** distortions. It works by projecting an image from a cylindrical surface onto a flat plane or the reverse. This correction is useful when dealing with images captured using wide-angle or fisheye lenses, which distort the image in a way that makes objects near the edges appear curved. The inverse, **Plane to Cylinder**, distorts a flat image onto a cylindrical surface.
+
+#### **Causes of Cylinder to Plane Distortion**:
+- **Field of Vision (FOV) Distortion**: This type of distortion occurs due to the shape of the lens and the angle at which light enters. Wide FOV lenses (such as fisheye lenses) cause objects at the edges to appear stretched and curved.
+- **Radial Projection**: Cylinder to Plane distortion corrects this by "flattening" the image and removing the radial stretch, making it look more like it was captured with a normal lens.
+- **Inverted Projection**: Plane to Cylinder is the reverse operation, applying a cylindrical distortion to simulate wrapping an image onto a curved surface, like projecting onto a globe or cylinder.
+
+---
+
+### **Formula for Cylinder to Plane Distortion**:
+
+Cylinder to Plane distortion is based on the **field of view angle** (FOV angle) and can optionally use the image center coordinates. The distortion is defined as:
+|FORMULAHERE|
+
+Where:
+- **FOV** is the field of view angle in degrees.
+- **Lens Focal Length** is the focal length of the lens used to capture the image.
+- **Film Size** is the size of the film or sensor used in the camera.
+
+Once the FOV is calculated, it is used to project the image from a cylindrical surface onto a flat plane. The optional arguments include:
+- **CenterX, CenterY**: The center coordinates of the image.
+- **FovOutput**: The output field of view.
+- **DestCenterX, DestCenterY**: The center coordinates of the destination image.
+
+#### **Inverted Formula (Plane to Cylinder)**:
+For **Plane to Cylinder** distortion, the image is projected from a plane onto a cylindrical surface. The formula for calculating the field of view is the same:
+|FORMULAHERE|
+
+The required arguments for **Plane to Cylinder** are:
+- **FovAngle**: The field of view angle.
+- **CenterX, CenterY**: The center coordinates of the image.
+
+### **Key Takeaways**:
+- **Cylinder to Plane distortion**: Corrects radial distortions caused by wide field of view lenses by projecting the image from a cylindrical surface onto a flat plane.
+- **Plane to Cylinder distortion**: Projects a flat image onto a cylindrical surface to simulate the appearance of a wrapped image.
+- The **FOV angle** is key to calculating how the image is transformed. By changing the FOV angle, the degree of correction or distortion can be controlled.

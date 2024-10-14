@@ -1,0 +1,34 @@
+### **Barrel Distortion**
+
+**Barrel distortion** is a type of radial distortion where straight lines appear to curve outward from the center of the image, giving a "bulging" effect like a barrel. It typically occurs in wide-angle lenses, where light rays entering from the edges of the lens are bent more than those entering from the center. This causes objects near the periphery of the image to appear stretched or warped outward.
+
+#### **Causes of Barrel Distortion:**
+- **Wide-angle lenses**: The short focal length of wide-angle lenses causes light rays from the scene to enter the lens at steep angles, particularly near the edges, where the distortion becomes most pronounced.
+- **Optical aberration**: Barrel distortion arises because lenses aren't perfect; their design tends to spread light unevenly, especially at the edges, due to spherical aberration. 
+- **Low-cost lenses**: Lenses that lack sophisticated optical corrections are more prone to barrel distortion, as they don't include enough lens elements to counteract the natural distortion produced by curved glass.
+
+---
+
+### **Formula for Barrel Distortion**:
+
+The mathematical model of barrel distortion is based on the **radial distance** from the center of the image. The farther from the center, the stronger the distortion.
+|FORMULAHERE|
+
+Where:
+- $r$ is the original radial distance from the center of the image (before distortion).
+- $r'$ is the new radial distance (after distortion).
+- $k_1, k_2, k_3$ are the distortion coefficients, typically unique to each lens.
+  - For **barrel distortion**, $k_1$ is typically **positive**, which causes the image to curve outward.
+
+#### **Simplified Model**:
+In many practical cases, the first term $k_1$ dominates, and we can simplify the formula:
+|FORMULAHERE|
+
+
+- **$k_1$** is positive for barrel distortion, meaning the points farther from the center are pushed outward.
+
+---
+
+### **Key Takeawas**:
+- **Barrel distortion**: Causes lines to curve outward due to light rays bending more at the edges, commonly seen in wide-angle lenses. The formula uses negative distortion coefficients.
+- While barrel and pincushion distortions are opposite in nature, they are not exact inverses. Correcting one may reduce but won't fully reverse the effects of the other due to their distinct, non-linear properties.
