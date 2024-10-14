@@ -281,8 +281,8 @@ def run_skew():
                         )
             else:
                 if st.session_state['reducer'] is None:
-                    x = st.slider("x",0,size[0],math.floor(size[0]/2))
-                    y = st.slider("y",0,size[1],math.floor(size[1]/2))
+                    x = st.slider("Basic Destination X Modifier",0,size[0],math.floor(size[0]/2))
+                    y = st.slider("Basic Destination Y Modifier",0,size[1],math.floor(size[1]/2))
                     destination_points = (
                         (0, 0),
                         (x, 0),
@@ -291,8 +291,8 @@ def run_skew():
                     )
                 else:
                     reducer = st.session_state['reducer']
-                    x = st.slider("x",0,math.floor(size[0]/reducer),math.floor(size[0]/(reducer*2)))
-                    y = st.slider("y",0,math.floor(size[1]/reducer),math.floor(size[1]/(reducer*2)))
+                    x = st.slider("Basic Destination X Modifier",0,math.floor(size[0]/reducer),math.floor(size[0]/(reducer*2)))
+                    y = st.slider("Basic Destination Y Modifier",0,math.floor(size[1]/reducer),math.floor(size[1]/(reducer*2)))
                     destination_points = (
                         (0, 0),
                         (math.floor(x*reducer), 0),
@@ -306,16 +306,63 @@ def run_skew():
             wimage = convert_wand_to_numpy(image)
             st.image(wimage, caption="distorted")
 
-def run_compound(barrel, pincushion, cylinder_to_plane, plane_to_cylinder):
+def run_compound(barrel, pincushion, cylinder_to_plane, skew):
     st.divider()
     wi = WImage.from_array(st.session_state['image'])
     with wi as image:
         image.format = 'jpeg'
         image.alpha_channel = False
-        barrel_a,barrel_b,barrel_c,barrel_d = (st.slider("Barrel Distort Amount", 0.0, 1.0, 0.0),0,0,1)
-        pin_a,pin_b,pin_c,pin_d = (st.slider("Pincushion Distort Amount", 0.0, .1, 0.0),0,0,1)
-        image.distort('barrel', (barrel_a,barrel_b,barrel_c,barrel_d))
-        image.distort('barrel_inverse', (pin_a,pin_b,pin_c,pin_d))
+
+        if barrel:
+            barrel_a,barrel_b,barrel_c,barrel_d = (0,st.slider("Select Barrel Distortion Amount (k1):", 0.0, 5.0, 2.5),0,1)
+            image.distort('barrel', (barrel_a,barrel_b,barrel_c,barrel_d))
+
+        if pincushion:
+            pin_a,pin_b,pin_c,pin_d = (0,st.slider("Select Pincushion Distortion Amount (k1):", -.16, 0.0,-0.08),0,1)
+            image.distort('barrel', (pin_a,pin_b,pin_c,pin_d))
+
+        if cylinder_to_plane:
+            invert = st.checkbox("Invert?")
+            fov = st.slider("FOV angle", 1, 160, 1)
+            if invert:
+                st.write("Plane to Cylinder")
+                image.distort('cylinder_2_plane', (fov,))
+            else:
+                st.write("Cylinder to Plane")
+                image.distort('plane_2_cylinder', (fov,))
+
+        if skew:
+            size = st.session_state['image'].size
+            source_points = (
+                (0, 0),
+                (size[0], 0),
+                (0, size[1]),
+                (size[0], size[1])
+            )
+            destination_points = None
+            if st.session_state['reducer'] is None:
+                    x = st.slider("Basic Destination X Modifier",0,size[0],math.floor(size[0]/2))
+                    y = st.slider("Basic Destination Y Modifier",0,size[1],math.floor(size[1]/2))
+                    destination_points = (
+                        (0, 0),
+                        (x, 0),
+                        (0, y),
+                        (size[0], size[1])
+                    )
+            else:
+                reducer = st.session_state['reducer']
+                x = st.slider("Basic Destination X Modifier",0,math.floor(size[0]/reducer),math.floor(size[0]/(reducer*2)))
+                y = st.slider("Basic Destination Y Modifier",0,math.floor(size[1]/reducer),math.floor(size[1]/(reducer*2)))
+                destination_points = (
+                    (0, 0),
+                    (math.floor(x*reducer), 0),
+                    (0, math.floor(y*reducer)),
+                    (size[0], size[1])
+                )
+            order = chain.from_iterable(zip(source_points, destination_points))
+            arguments = list(chain.from_iterable(order))
+            image.distort('perspective', arguments)
+
         wimage = convert_wand_to_numpy(image)
         st.image(wimage, caption="Distorted")
         st.write("Note: Distortion explanations provided while not compounded")
@@ -357,7 +404,7 @@ def main():
             with st.spinner():
                 run_skew()
         if user_options_dict['compound_distortions']:
-            run_compound(user_options_dict['barrel'],user_options_dict['pincushion'],user_options_dict['cylinder_to_plane'])
+            run_compound(user_options_dict['barrel'],user_options_dict['pincushion'],user_options_dict['cylinder_to_plane'],user_options_dict['skew'])
                 
 
 if __name__ == '__main__':
