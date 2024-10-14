@@ -3,17 +3,19 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-from skimage.transform import resize
+from itertools import chain
 from streamlit_image_coordinates import streamlit_image_coordinates
 
 from io import BytesIO
 import skimage.io
 from wand.image import Image as WImage
 
-
-
 if 'image' not in st.session_state:
     st.session_state['image'] = None
+
+if 'reducer' not in st.session_state:
+    st.session_state['reducer'] = None
+
 
 def set_explanations():
     explanations = {}
@@ -27,6 +29,14 @@ def form_contents():
     img_file_buffer = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"])
     submitted = st.form_submit_button("Submit")
     if submitted:
+        if 'image' not in st.session_state:
+            st.session_state['image'] = None
+        else:
+            st.session_state['image'] = None
+        if 'reducer' not in st.session_state:
+            st.session_state['reducer'] = None
+        else:
+            st.session_state['reducer'] = None
         if image_options == "Grid":
             image = Image.open('ExampleImages/grid.jpeg')
         elif image_options == "Dog":
@@ -67,6 +77,7 @@ def run_pixel_mesurements(image):
     st.write(info)
 
     value = streamlit_image_coordinates(new_image,key="numpy")
+
     if value is not None:
         x,y = value["x"],value["y"]
         result = ""
@@ -133,7 +144,71 @@ def run_cylinder_to_plane(explanations):
             image.distort('plane_2_cylinder', (fov_angle,))
         wimage = convert_wand_to_numpy(image)
         st.image(wimage, caption="distorted")
+def run_skew(explanations):
+        st.divider()
+        size = st.session_state['image'].size
+        wi = WImage.from_array(st.session_state['image'])
+        with wi as image:
+            image.format = 'jpeg'
+            image.alpha_channel = False
+            with st.expander("Perspective"):
+                st.write("TODO")
+                
+                # st.write(explanations['barrel1'])
+                # st.image(Image.open('ExampleImages/barrel.png'))
+                # st.write(explanations['barrel2'])
+            source_points = (
+                (0, 0),
+                (size[0], 0),
+                (0, size[1]),
+                (size[0], size[1])
+            )
+            advanced = st.checkbox("Advanced Point Selection")
+            destination_points = None
+            if advanced:
+                st.write(st.session_state['reducer'])
+                if st.session_state['reducer'] is None:
+                    txt = st.text_area(f"Please input coordinates in the format listed below: Image size for reference: {size}","(x1,y1)\n(x2,y2)\n(x3,y3)\n(x4,y4)")
+                    st.write(txt)
+                    destination_points = (
+                        (0, 0),
+                        (size[0], 0),
+                        (0, size[1]),
+                        (size[0], size[1])
+                    )
+                else:
+                    destination_points = (
+                        (0, 0),
+                        (size[0], 0),
+                        (0, size[1]),
+                        (size[0], size[1])
+                    )
+            else:
+                if st.session_state['reducer'] is None:
+                    x = st.slider("x",0,size[0],math.floor(size[0]/2))
+                    y = st.slider("y",0,size[1],math.floor(size[1]/2))
+                    destination_points = (
+                        (0, 0),
+                        (x, 0),
+                        (0, y),
+                        (size[0], size[1])
+                    )
+                else:
+                    reducer = st.session_state['reducer']
+                    x = st.slider("x",0,math.floor(size[0]/reducer),math.floor(size[0]/(reducer*2)))
+                    y = st.slider("y",0,math.floor(size[1]/reducer),math.floor(size[1]/(reducer*2)))
+                    destination_points = (
+                        (0, 0),
+                        (math.floor(x*reducer), 0),
+                        (0, math.floor(y*reducer)),
+                        (size[0], size[1])
+                    )
 
+            order = chain.from_iterable(zip(source_points, destination_points))
+            arguments = list(chain.from_iterable(order))
+            image.distort('perspective', arguments)
+            wimage = convert_wand_to_numpy(image)
+            st.image(wimage, caption="distorted")
 
 def run_compound(barrel, pincushion, cylinder_to_plane, plane_to_cylinder):
     st.divider()
@@ -155,14 +230,15 @@ def main():
     st.title("Imaging Tool")
     with st.form("my_form"):
         form_contents()
-    image = st.session_state['image']
-    if image.size[1]>740:
-        reducer = 740/image.size[0]
-        new_image = image.resize((math.floor(image.size[0]*reducer),(math.floor(image.size[1]*reducer))))
-    else:
-        new_image = image
-    st.session_state['image'] = new_image
     if st.session_state['image'] is not None:
+        image = st.session_state['image']
+        if image.size[1]>740:
+            reducer = 740/image.size[0]
+            st.session_state['reducer'] = reducer
+            new_image = image.resize((math.floor(image.size[0]*reducer),(math.floor(image.size[1]*reducer))))
+        else:
+            new_image = image
+        st.session_state['image'] = new_image
         user_options_dict = user_options()
         purged_dict = user_options_dict.copy()
         del purged_dict['pixel_measurements']
@@ -183,7 +259,7 @@ def main():
                 run_cylinder_to_plane(explanations)
         if user_options_dict['skew'] and not user_options_dict['compound_distortions']:
             with st.spinner():
-                pass
+                run_skew(explanations)
         if user_options_dict['compound_distortions']:
             run_compound(user_options_dict['barrel'],user_options_dict['pincushion'],user_options_dict['cylinder_to_plane'])
                
