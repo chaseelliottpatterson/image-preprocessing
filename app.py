@@ -185,7 +185,6 @@ def run_skew():
             advanced = st.checkbox("Advanced Point Selection")
             destination_points = None
             if advanced:
-                st.write(f"reducer = {st.session_state['reducer']}")
                 if st.session_state['reducer'] is None:
                     txt = st.text_area(f"Please input coordinates in the format listed below: Image size for reference: {size}",placeholder="(src1x,src1y)(dst1x,dst1y)\n(src2x,src2y)(dst2x,dst2y)\n(src3x,src3y)(dst3x,dst3y)\n(src4x,src4y)(dst4x,dst4y)")
                     splitter = txt.replace('\n', "|").replace(' ', "|").replace('(', "|").replace(')', "|").replace(',', "|").split('|')
@@ -236,12 +235,50 @@ def run_skew():
 # (0,92)(0,92)
 # (140,92)(140,92)
                 else:
-                    destination_points = (
+                    reducer = st.session_state['reducer']
+                    txt = st.text_area(f"Please input coordinates in the format listed below: Image size for reference: ({round(size[0]/reducer)}, {round(size[1]/reducer)})",placeholder="(src1x,src1y)(dst1x,dst1y)\n(src2x,src2y)(dst2x,dst2y)\n(src3x,src3y)(dst3x,dst3y)\n(src4x,src4y)(dst4x,dst4y)")
+                    splitter = txt.replace('\n', "|").replace(' ', "|").replace('(', "|").replace(')', "|").replace(',', "|").split('|')
+                    points = []
+                    for split in splitter:
+                        if split.isdigit():
+                            points.append(int(split))
+                    if len(points) == 16:
+                        error = False
+                        tmp = (
+                            (round(points[0]*reducer), round(points[1]*reducer)),
+                            (round(points[4]*reducer), round(points[5]*reducer)),
+                            (round(points[8]*reducer), round(points[9]*reducer)),
+                            (round(points[12]*reducer), round(points[13]*reducer))
+                        )
+                        destination_points = (
+                            (round(points[2]*reducer), round(points[3]*reducer)),
+                            (round(points[6]*reducer), round(points[7]*reducer)),
+                            (round(points[10]*reducer), round(points[11]*reducer)),
+                            (round(points[14]*reducer), round(points[15]*reducer))
+                        )
+                        for point in tmp:
+                            if point[0] > size[0] or point[0] < 0:
+                                error=True
+                            if point[1] > size[1] or point[1] < 0:
+                                error=True     
+                        if not error:
+                            source_points=tmp
+                        else:
+                            st.write("Invalid values setting to default parameters")
+                            destination_points = (
+                            (0, 0),
+                            (size[0], 0),
+                            (0, size[1]),
+                            (size[0], size[1])
+                            )
+                    else:
+                        st.write("Invalid values setting to default parameters")
+                        destination_points = (
                         (0, 0),
                         (size[0], 0),
                         (0, size[1]),
                         (size[0], size[1])
-                    )
+                        )
             else:
                 if st.session_state['reducer'] is None:
                     x = st.slider("x",0,size[0],math.floor(size[0]/2))
