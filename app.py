@@ -66,25 +66,22 @@ def convert_wand_to_numpy(image):
     return(wimage)
 
 def run_pixel_mesurements(image):
-    info = f'Image Info: Format-{image.format}, Size-{image.size}, Mode-{image.mode}'
-    reducer = None
-    if image.size[1]>740:
-        reducer = 740/image.size[0]
-        info = info + f" | Image over max size, resizing to {math.floor(image.size[0]*reducer)}x{math.floor(image.size[1]*reducer)}"
-        new_image = image.resize((math.floor(image.size[0]*reducer),(math.floor(image.size[1]*reducer))))
+    reducer = st.session_state['reducer']
+    if reducer is not None:
+        info = f'Image Info: Format-{image.format}, Size-({round(image.size[0]/reducer)}, {round(image.size[1]/reducer)}), Mode-{image.mode}'
     else:
-        new_image = image
+        info = f'Image Info: Format-{image.format}, Size-{image.size}, Mode-{image.mode}'
     st.write(info)
 
-    value = streamlit_image_coordinates(new_image,key="numpy")
+    value = streamlit_image_coordinates(st.session_state['image'],key="numpy")
 
     if value is not None:
         x,y = value["x"],value["y"]
         result = ""
         if reducer is not None:
-            x = math.floor(x/reducer)
-            y = math.floor(y/reducer)
-            result = "  *This value has been retroactivly calculated from resizing process"
+            x = round(x/reducer)
+            y = round(y/reducer)
+            # result = "  *This value has been retroactivly calculated from resizing process"
         resut = f"(X,Y): ({x},{y})" + result
         st.write(resut)
     st.divider()
@@ -146,8 +143,8 @@ def run_cylinder_to_plane():
         if invert:
             setting_mode = "Plane to Cylinder"
         st.write(setting_mode)
-        lens = st.slider("lens", 1, 100, 50)
-        film = st.slider("film", 1, 100, 50)
+        lens = st.slider("Lens Focal Length", 1, 100, 65)
+        film = st.slider("Film Size", 1, 100, 35)
         fov_angle = (lens/film) * (180/math.pi)
         if fov_angle > 160:
             fov_angle = 160
@@ -177,7 +174,7 @@ def run_skew():
                 st.markdown(split_markdown[2])
                 st.latex(r'''(src1x, src1y) \rightarrow (dst1x, dst1y)\\(src2x, src2y) \rightarrow (dst2x, dst2y)\\(src3x, src3y) \rightarrow (dst3x, dst3y)\\(src4x, src4y) \rightarrow (dst4x, dst4y)''')
                 st.markdown(split_markdown[3])
-                st.latex(r'''\begin{pmatrix}0, 0\end{pmatrix}\rightarrow\begin{pmatrix}14, 4.6\end{pmatrix}\\\begin{pmatrix}140, 0\end{pmatrix}\rightarrow\begin{pmatrix}126.9, 9.2\end{pmatrix}\\\begin{pmatrix}0, 92\end{pmatrix}\rightarrow\begin{pmatrix}0, 92\end{pmatrix}\\\begin{pmatrix}140, 92\end{pmatrix}\rightarrow\begin{pmatrix}140, 92\end{pmatrix}''')
+                st.latex(r'''\begin{pmatrix}0, 0\end{pmatrix}\rightarrow\begin{pmatrix}14, 4\end{pmatrix}\\\begin{pmatrix}140, 0\end{pmatrix}\rightarrow\begin{pmatrix}126, 9\end{pmatrix}\\\begin{pmatrix}0, 92\end{pmatrix}\rightarrow\begin{pmatrix}0, 92\end{pmatrix}\\\begin{pmatrix}140, 92\end{pmatrix}\rightarrow\begin{pmatrix}140, 92\end{pmatrix}''')
                 st.markdown(split_markdown[4])
             source_points = (
                 (0, 0),
@@ -190,26 +187,54 @@ def run_skew():
             if advanced:
                 st.write(f"reducer = {st.session_state['reducer']}")
                 if st.session_state['reducer'] is None:
-                    txt = st.text_area(f"Please input coordinates in the format listed below: Image size for reference: {size}","(x1,y1)\n(x2,y2)\n(x3,y3)\n(x4,y4)")
+                    txt = st.text_area(f"Please input coordinates in the format listed below: Image size for reference: {size}",placeholder="(src1x,src1y)(dst1x,dst1y)\n(src2x,src2y)(dst2x,dst2y)\n(src3x,src3y)(dst3x,dst3y)\n(src4x,src4y)(dst4x,dst4y)")
                     splitter = txt.replace('\n', "|").replace(' ', "|").replace('(', "|").replace(')', "|").replace(',', "|").split('|')
                     points = []
                     for split in splitter:
                         if split.isdigit():
                             points.append(int(split))
-                    if len(points) == 8:
-                        destination_points = (
+                    if len(points) == 16:
+                        error = False
+                        tmp = (
                             (points[0], points[1]),
-                            (points[2], points[3]),
                             (points[4], points[5]),
-                            (points[6], points[7])
+                            (points[8], points[9]),
+                            (points[12], points[13])
                         )
+                        destination_points = (
+                            (points[2], points[3]),
+                            (points[6], points[7]),
+                            (points[10], points[11]),
+                            (points[14], points[15])
+                        )
+                        for point in tmp:
+                            if point[0] > size[0] or point[0] < 0:
+                                error=True
+                            if point[1] > size[1] or point[1] < 0:
+                                error=True     
+                        if not error:
+                            source_points=tmp
+                        else:
+                            st.write("Invalid values setting to default parameters")
+                            destination_points = (
+                            (0, 0),
+                            (size[0], 0),
+                            (0, size[1]),
+                            (size[0], size[1])
+                            )
                     else:
+                        st.write("Invalid values setting to default parameters")
                         destination_points = (
                         (0, 0),
                         (size[0], 0),
                         (0, size[1]),
                         (size[0], size[1])
                         )
+# valid input for testing
+# (0,0)(14,16)      
+# (140,0)(126,9)
+# (0,92)(0,92)
+# (140,92)(140,92)
                 else:
                     destination_points = (
                         (0, 0),
