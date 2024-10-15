@@ -82,7 +82,7 @@ Where `k₁` is negitive for pincushion distortion.
 
 Projects an image from a cylindrical surface onto a flat plane to correct field-of-view distortions.
 
-![Cylinder to Plane Formula](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7DFOV%3D%5Cfrac%7B%5Ctext%7BLens_Focal_Length%7D%7D%7B%5Ctext%7BFilm_Size%7D%7D%5Ctimes%5Cleft%28%5Cfrac%7B180%7D%7B%5Cpi%7D%5Cright%29)
+![Cylinder to Plane Formula](https://latex.codecogs.com/png.latex?FOV%20%3D%20%5Cfrac%7B%5Ctext%7BLens%20Focal%20Length%7D%7D%7B%5Ctext%7BFilm%20Size%7D%7D%20%5Ctimes%20%5Cleft%28%5Cfrac%7B180%7D%7B%5Cpi%7D%5Cright%29)
 
 #### **Inverted (Plane to Cylinder)**
 
