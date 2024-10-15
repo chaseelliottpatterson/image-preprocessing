@@ -1,5 +1,5 @@
 # Interactive Image Tool with Streamlit
-
+![Barrel Distortion Formula](https://latex.codecogs.com/png.latex?r%27%20%3D%20r%20%5Ccdot%20%5Cleft%28%201%20%2B%20k_1%20%5Ccdot%20r%5E2%20%2B%20k_2%20%5Ccdot%20r%5E4%20%2B%20k_3%20%5Ccdot%20r%5E6%20%5Cright%29)
 This project is an interactive image processing tool built using Python and [Streamlit](https://streamlit.io/). The tool enables users to detect pixel coordinates and apply various image distortions, including barrel distortion, pincushion distortion, cylinder-to-plane transformations, perspective skew, and more. It also supports combining multiple distortions for complex effects.
 
 ## Features
