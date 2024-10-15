@@ -37,9 +37,9 @@ def form_contents():
         else:
             st.session_state['reducer'] = None
         if image_options == "Grid":
-            image = Image.open('ExampleImages/grid.jpeg')
+            image = Image.open('example_images/grid.jpeg')
         elif image_options == "Dog":
-            image = Image.open('ExampleImages/dog.jpg')
+            image = Image.open('example_images/dog.jpg')
         elif image_options == "Custom Upload":
             image = Image.open(img_file_buffer)
 
