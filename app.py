@@ -1,7 +1,6 @@
 import streamlit as st
 from PIL import Image
 import numpy as np
-import matplotlib.pyplot as plt
 import math
 from itertools import chain
 from streamlit_image_coordinates import streamlit_image_coordinates
