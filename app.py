@@ -1,5 +1,5 @@
 import streamlit as st
-from PIL import Image 
+from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 import math
@@ -46,6 +46,15 @@ def form_contents():
 
         st.write(f'Image Info: Format-{image.format}, Size-{image.size}, Mode-{image.mode}')
         st.session_state['image'] = image
+        if st.session_state['image'] is not None:
+            image = st.session_state['image']
+            if image.size[1]>740:
+                reducer = 740/image.size[0]
+                st.session_state['reducer'] = reducer
+                new_image = image.resize((math.floor(image.size[0]*reducer),(math.floor(image.size[1]*reducer))))
+            else:
+                new_image = image
+            st.session_state['image'] = new_image
 def user_options():
     user_options_dict = {}
     with st.expander("Options"):
@@ -58,7 +67,7 @@ def user_options():
             user_options_dict['pincushion'] = st.checkbox("Pincushion")
             user_options_dict['cylinder_to_plane'] = st.checkbox("Cylinder to Plane")
             user_options_dict['skew'] = st.checkbox("Perspective Skew")
-            user_options_dict['compound_distortions'] = st.checkbox("Compound (distort in sequence for stacking distortions)")
+            user_options_dict['compound_distortions'] = st.checkbox("Compound (Select options above to compound)")
     return user_options_dict
 def convert_wand_to_numpy(image):
     img_buffer = np.asarray(bytearray(image.make_blob()), dtype='uint8')
@@ -73,17 +82,13 @@ def run_pixel_mesurements(image):
         info = f'Image Info: Format-{image.format}, Size-{image.size}, Mode-{image.mode}'
     st.write(info)
 
-    value = streamlit_image_coordinates(st.session_state['image'],key="numpy")
-
+    value = streamlit_image_coordinates(image,key="numpy")
     if value is not None:
         x,y = value["x"],value["y"]
-        result = ""
         if reducer is not None:
             x = round(x/reducer)
             y = round(y/reducer)
-            # result = "  *This value has been retroactivly calculated from resizing process"
-        resut = f"(X,Y): ({x},{y})" + result
-        st.write(resut)
+        st.latex(r"(X,Y): \left( {" + str(x) + r"}, {" + str(y) + r"} \right) ")        
     st.divider()
 def run_barrel():
         st.divider()
@@ -406,6 +411,5 @@ def main():
         if user_options_dict['compound_distortions']:
             run_compound(user_options_dict['barrel'],user_options_dict['pincushion'],user_options_dict['cylinder_to_plane'],user_options_dict['skew'])
                 
-
 if __name__ == '__main__':
     main()
