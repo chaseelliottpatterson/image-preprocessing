@@ -15,19 +15,15 @@ if 'image' not in st.session_state:
 if 'reducer' not in st.session_state:
     st.session_state['reducer'] = None
 
+is_car=False
 
-def set_explanations():
-    explanations = {}
-    explanations['barrel1'] = 'Barrel distortion attempts to correct spherical distortion caused by camera lenses. It operates with four constant coefficient values A, B, C, & D mapped to the images EXIF meta-data. Usually camera, lens, and zoom attributes. The equation for barrel distortion is:'
-    explanations['barrel2'] = ''' Where r is the destination radius. The arguments for the distortion are:  \n A B C D X Y  \n For this example X,Y are auto-calculated, and A is being modified below since it is the highest contributer to the equasion '''
-    explanations['pincushion1'] = '''The barrel inverse distortion has the same arguments as the barrel distortion, but performs a different equation.'''
-    explanations['pincushion2'] = '''It does not exactly reverse, or undo, the effects of the barrel distortion.'''
-    return explanations
 def form_contents():
-    image_options = st.radio("Image you would like to use", ["Grid", "Dog", "Custom Upload"] )
+    image_options = st.radio("Image you would like to use", ["Grid", "Dog","Car", "Custom Upload"] )
     img_file_buffer = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"])
     submitted = st.form_submit_button("Submit")
     if submitted:
+        global is_car
+        is_car = False
         if 'image' not in st.session_state:
             st.session_state['image'] = None
         else:
@@ -38,6 +34,9 @@ def form_contents():
             st.session_state['reducer'] = None
         if image_options == "Grid":
             image = Image.open('example_images/grid.jpeg')
+        elif image_options == "Car":
+            image = Image.open('example_images/car.jpg')
+            is_car = True
         elif image_options == "Dog":
             image = Image.open('example_images/dog.jpg')
         elif image_options == "Custom Upload":
@@ -190,7 +189,11 @@ def run_skew():
             destination_points = None
             if advanced:
                 if st.session_state['reducer'] is None:
-                    txt = st.text_area(f"Please input coordinates in the format listed below: Image size for reference: {size}",placeholder="(src1x,src1y)(dst1x,dst1y)\n(src2x,src2y)(dst2x,dst2y)\n(src3x,src3y)(dst3x,dst3y)\n(src4x,src4y)(dst4x,dst4y)")
+                    if is_car:
+                        good_input = '''(303,181)(100,100)\n(306,202)(105,200)\n(352,172)(345,100)\n(356,192)(355,200)'''
+                        txt = st.text_area(f"Please input coordinates in the format listed below: Image size for reference: {size}", good_input,placeholder="(src1x,src1y)(dst1x,dst1y)\n(src2x,src2y)(dst2x,dst2y)\n(src3x,src3y)(dst3x,dst3y)\n(src4x,src4y)(dst4x,dst4y)")
+                    else:
+                        txt = st.text_area(f"Please input coordinates in the format listed below: Image size for reference: {size}",placeholder="(src1x,src1y)(dst1x,dst1y)\n(src2x,src2y)(dst2x,dst2y)\n(src3x,src3y)(dst3x,dst3y)\n(src4x,src4y)(dst4x,dst4y)")
                     splitter = txt.replace('\n', "|").replace(' ', "|").replace('(', "|").replace(')', "|").replace(',', "|").split('|')
                     points = []
                     for split in splitter:
@@ -372,7 +375,6 @@ def run_compound(barrel, pincushion, cylinder_to_plane, skew):
         st.write("Note: Distortion explanations provided while not compounded")
 
 def main():
-    explanations = set_explanations()
     st.set_page_config(layout="centered")
     st.title("Interactive Image Tool")
     with st.form("my_form"):
