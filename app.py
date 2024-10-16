@@ -15,15 +15,19 @@ if 'image' not in st.session_state:
 if 'reducer' not in st.session_state:
     st.session_state['reducer'] = None
 
-is_car=False
+if 'car' not in st.session_state:
+    st.session_state['car'] = None
+
 
 def form_contents():
     image_options = st.radio("Image you would like to use", ["Grid", "Dog","Car", "Custom Upload"] )
     img_file_buffer = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"])
     submitted = st.form_submit_button("Submit")
     if submitted:
-        global is_car
-        is_car = False
+        if 'car' not in st.session_state:
+                st.session_state['car'] = False
+        else:
+            st.session_state['car'] = False
         if 'image' not in st.session_state:
             st.session_state['image'] = None
         else:
@@ -36,7 +40,10 @@ def form_contents():
             image = Image.open('example_images/grid.jpeg')
         elif image_options == "Car":
             image = Image.open('example_images/car.jpg')
-            is_car = True
+            if 'car' not in st.session_state:
+                st.session_state['car'] = True
+            else:
+                st.session_state['car'] = True
         elif image_options == "Dog":
             image = Image.open('example_images/dog.jpg')
         elif image_options == "Custom Upload":
@@ -189,7 +196,7 @@ def run_skew():
             destination_points = None
             if advanced:
                 if st.session_state['reducer'] is None:
-                    if is_car:
+                    if st.session_state['car']:
                         good_input = '''(303,181)(100,100)\n(306,202)(105,200)\n(352,172)(345,100)\n(356,192)(355,200)'''
                         txt = st.text_area(f"Please input coordinates in the format listed below: Image size for reference: {size}", good_input,placeholder="(src1x,src1y)(dst1x,dst1y)\n(src2x,src2y)(dst2x,dst2y)\n(src3x,src3y)(dst3x,dst3y)\n(src4x,src4y)(dst4x,dst4y)")
                     else:
