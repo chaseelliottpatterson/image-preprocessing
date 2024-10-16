@@ -375,7 +375,7 @@ def run_compound(barrel, pincushion, cylinder_to_plane, skew):
         st.write("Note: Distortion explanations provided while not compounded")
 
 def main():
-    st.set_page_config(layout="centered")
+    st.set_page_config(layout="centered",page_title="Imaging Tool")
     st.title("Interactive Image Tool")
     with st.form("my_form"):
         form_contents()
